@@ -48,4 +48,5 @@ ehthumbs.db
 *.exe
 *.rar
 *.zip
+*.zip.meta
 *.dex
