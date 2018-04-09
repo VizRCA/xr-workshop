@@ -5,7 +5,8 @@ Projects and resources to familiarise yourself with XR using Unity
 
 A gameart focussed introduction to Unity to scaffold later XR work. 
 
-+ [https://github.com/VizRCA/introduction-to-unity](https://github.com/VizRCA/introduction-to-unity)
++ Some prebuilt examples [https://github.com/VizRCA/introduction-to-unity](https://github.com/VizRCA/introduction-to-unity)
++ [A DIY run-through of core Unity features](./Instructions.md)
 
 ## Embodied Virtual Reality (WiP)
 

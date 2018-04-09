@@ -9,8 +9,10 @@
 + [ ] [Scripts](#scripts) 
 + [ ] [Basic Scripting](#basic-scripting)
 + [ ] [Interaction](#interaction)
-+ [ ] [Gamepads](#gamepads)
 + [ ] [Extras](#extras)
+    + [ ] [Reflection probes](#reflection-probes)
+    + [ ] [Animations](#animations)
+    + [ ] [Post processing](#post-processing)
 
 ## Basics
 
@@ -89,6 +91,23 @@ Basic primitives such as cube, sphere, capsule, cone, cylinder, board, etc. can 
 + You can also enter numbers directly in the inspector. 
 + This is common to all objects that can be placed in the unity scene.
 
+#### Local vs World Space
+
++ Nest some Cubes in a GameObject.
++ Move around the holder GameObject
+
+#### Details
+
+Its important to see the difference between Local space and World space. In every scene,or any 3D world, there is a point of origin, often referred to as zero, as it is represented by the position (0,0,0).
+
+"All world positions of objects in 3D are relative to world zero. However, to make 
+things simpler, we also use Local space (also known as Object space) to define object positions in relation to one another. Local space assumes that every object has 
+its own zero point, which is the point from which its axis handles emerge. This is 
+usually the center of the object, and by creating relationships between objects, we 
+can compare their positions in relation to one another. Such relationships, known 
+as parent-child relationships, mean that we can calculate distances from other objects using Local space, with the parent object's position becoming the new zero 
+point for any of its child objects." - [Source](https://www.scribd.com/read/253047721/Unity-Game-Development-Essentials)
+
 ----
 
 ### Material settings
@@ -106,13 +125,38 @@ In **Albedo** you can set basic colour and apply overall textures to the surface
 + Drag the material onto the cube (in screne, hierarchy or on renderer)
 + Select an albedo texture from the Standard Assets
 
+#### Details
+
+Materials are a common concept to all 3D applications, as they provide the means 
+to set the visual appearance of a 3D model. In Unity, the use of materials is easy. Any materials created in your 3D modelling 
+package will be imported and recreated automatically by the engine and created as 
+assets to use later. You can also create your own materials from scratch, assigning 
+images as texture files, and selecting a shader from a large library that comes built- 
+in. You may also write your own shader scripts, or implement those written by 
+members of the Unity community, giving you more freedom for expansion beyond 
+the included set. 
+
+Crucially, when creating textures for a game in a graphics package such as Photo- 
+shop, you must be aware of the resolution. Game textures are expected to be 
+square, and sized to a power of 2. E.g.
+
++ 128 x 128 
++ 256 x 256 
++ 512 x 512 
++ 1024 x 1024 
+
+Creating textures of these sizes will mean that they can be tiled successfully by the 
+game engine. You should also be aware that the larger the texture file you use, the 
+more processing power you'll be demanding from the player's computer. Therefore, 
+always remember to try resizing your graphics to the smallest power of 2 dimensions possible, without sacrificing too much in the way of quality. 
+
 ----
 
 ### Prefabs
 
 A **Prefab** stores object properties in a reusable way.
 It is a template to make instances of in scenes.
-Changes to prefabs propagate to all instances. Some exceptions to this.
+Changes to prefabs propagate to all instances. Some important exceptions to this.
 
 + Drag your bouncy cube into the assets folder, this creates a prefab of that type.
 
@@ -149,7 +193,7 @@ Save the edited scene. When saved, a scene file is created in the project, and s
 
 ### Export and Run application
 
-+ From the menu bar, click File> Build Settings. The application export setting screen appears. 
++ From the menu bar, click File > Build Settings. The application export setting screen appears. 
 + Add the current scene to the build. Do appropriate settings (windows, osx).
 + Click Build And Run, the application file itself is stored in the folder of the project or elsewhere.
 + When launching the application, various setting screens appear; 
@@ -188,6 +232,33 @@ Also, if you change the *material* of **Box Collider** , you change how the box 
 + Press play. They should bounce.
 
 ![bounce](./TutorialResources/bounce.webm)
+
+#### Details
+
+In game engines, there is no assumption that an object should be affected by 
+physics — firstly because it requires a lot of processing power, and secondly because it simply doesn't make sense. For example, in a 3D driving game, it makes 
+sense for the cars to be under the influence of the physics engine, but not the track 
+or surrounding objects, such as trees, walls, and so on — they simply don't need to 
+be. For this reason, when making games, a Rigid Body component is given to any 
+object you want under the control of the physics engine. 
+
+Physics engines for games use the Rigid Body dynamics system of creating realistic 
+motion. This simply means that instead of objects being static in the 3D world, they 
+can have the following properties: 
+ 
++ Mass 
++ Gravity 
++ Velocity 
++ Friction
+
+While more crucial in game engines than in 3D animation, collision detection is the 
+way we analyze our 3D world for inter-object collisions. By giving an object a **Collider** component, we are effectively placing an invisible net around it. This net mimics its shape and is in charge of reporting any collisions with other colliders, mak- 
+ing the game engine respond accordingly. For example, in a ten-pin bowling game, 
+a simple spherical collider will surround the ball, while the pins themselves will 
+have either a simple capsule collider, or for a more realistic collision, employ a 
+Mesh collider. On impact, the colliders of any affected objects will report to the 
+physics engine, which will dictate their reaction, based on the direction of impact, 
+speed, and other factors. 
 
 ---- 
 
@@ -292,3 +363,11 @@ When you move through these zones, any sounds that occur in them are processed w
 ### Become scenery
 
 + Adjust variously, it will be like a landscape.
+
+## Scripts
+## Basic Scripting
+## Interaction
+## Extras
+### Reflection probes
+### Animations
+### Post processing
