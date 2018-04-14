@@ -6,13 +6,12 @@
 + [x] [Navigating space](#navigating-space)
 + [x] [Sound](#sound)
 + [x] [Terrain](#terrain) 
-+ [ ] [Scripts](#scripts) 
-+ [ ] [Basic Scripting](#basic-scripting)
-+ [ ] [Interaction](#interaction)
-+ [ ] [Extras](#extras)
-    + [ ] [Reflection probes](#reflection-probes)
-    + [ ] [Animations](#animations)
-    + [ ] [Post processing](#post-processing)
++ [x] [Scripts](#scripts) 
++ [x] [Interaction](#interaction)
++ [x] [Extras](#extras)
+    + [x] [Video work](#video-work)
+    + [x] [Reflection probes](#reflection-probes)
+    + [x] [Post processing](#post-processing)
 
 ## Basics
 
@@ -289,18 +288,16 @@ This turns control into a subjective and immersive world in which the world beyo
 **Third Person Character** is also an arranged Prefab in Characters Standard Assets. 
 
 + Search for the **ThirdPersonController**
-+ Add to scene
-+ Activate it with a checkbox of the default Main Camera. The main camera moves to the position where the placed ThirdPersonController appears. 
++ Add to scene 
 + Play the game, you can move with W, A, S, D. 
 
 However, the camera does not follow.
 
-+ So, put the camera behind the character of 
-ThirdPersonController,
-+ then put the camera inside the group of ThirdPersonController, it will be the camera to follow. 
++ Search for and add the **FreeLookCameraRig** prefab, add it to scene. Position the camera behind the character.
++ Drag the ThirdPersonController GameObject onto the `FreeLookCam` component `Target`. Now the main camera moves with you and allows twisting views.
 
 Since the moving direction of ThirdPersonController is decided on the basis of the position of the 
-camera, if the Rotation: Y of the camera is slightly shifted to the left or right, the backward movement of the character does not operate properly.
+camera, if the Rotation: Y of the camera is slightly shifted to the left or right, the backward movement of the character does not operate properly. 
 
 ![run](./TutorialResources/run.webm)
 
@@ -365,9 +362,235 @@ When you move through these zones, any sounds that occur in them are processed w
 + Adjust variously, it will be like a landscape.
 
 ## Scripts
-## Basic Scripting
+
+Scripts allow custom behaviours to GameObjects. You can just download and use them or make your own. In Unity you can write scripts using the C# language, you can write in others but I won't cover them.
+
+### Make a rotator script
+
++ Assets> Create> C # Script
++ Give it a name such as `RotateTranslate`, no spaces!
++ Double-clicking on the script file opens the editor application, so we will edit it there.
+
+```csharp
+public class RotateTranslate : MonoBehaviour {
+
+  // Use this for initialization
+  void Start () {
+
+  }
+
+  // Update is called once per frame
+  void Update () {
+
+    transform.Rotate(1, 1, 0); 
+    transform.Translate(0.01f, 0, 0); 
+
+  }
+
+}
+```
+**What is all this?**
+
+We hava a `class` named `RotateTranslate`, 
+it `inherits` from `MonoBehaviour`. The name of the script file and this class name have to match! `Start ()` and `Update ()` are the same as `setup ()` and `draw ()` of processing and openFrameworks. `Start ()` is executed only once at the beginning of the game, it initializes various settings etc. `Update ()` is executed every frame repeatedly at game execution, so you can move things, make it interactive, and so on. 
+
+In the above code, the position of the target object and its rotation are changed every frame.
+
+**Lets continue:**
+
++ Save the code file, and go back to the editor and confirm that there is no error.
++ Apply the script to a GameObject by either draging onto a GameObject in hierarchy or adding it in the inspector. 
++ Press the play 
++ The object should float and wind fluently. Good vibes.
+
+### Less trival example
+
+Instead of placing primitives and placing scripts there, let create a script that creates primitives places them for us. The following example will make 5 writhing cubes.
+
++ Create an empty object and name it "CubeHolder".
++ Create a new script and add the following
+
+```csharp
+public class RotateCubes : MonoBehaviour {
+	
+    private GameObject holder; 
+    private GameObject[] objArr = new GameObject[5];
+    private Vector3 defPos = new Vector3 (0,0,0);
+
+    // Use this for initialization
+    void Start () {
+        print("test");
+        holder = GameObject.Find("CubeHolder");
+        defPos = holder.transform.localPosition;
+        for (int i = 0; i < objArr.Length; i++) {
+            objArr[i] = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            objArr[i].transform.localScale = new Vector3 (5,5,5);
+            objArr[i].transform.localPosition = holder.transform.localPosition;
+            objArr[i].transform.Rotate(i, i, 0);
+        }
+    }
+
+    // Current rotation
+    float c_rot = 0;
+
+    void Update () {
+        c_rot += 0.05f;
+        for (int i = 0; i < objArr.Length; i++) {
+            objArr[i].transform.localPosition = new Vector3 (defPos.x+Mathf.Sin(c_rot)*2, defPos.y+Mathf.Cos(c_rot)*2, defPos.z);
+            objArr[i].transform.Rotate((i+1)*0.1f, (i+1)*0.2f, (i+1)*0.3f);
+        }
+
+    }
+}
+```
+
+![scripting](./TutorialResources/ScriptExample.png)
+
+### Public variables and private variables
+
+If you set the variable as `public` you will be able to change it from the inspector. Set variables that you do not want to change externally as `private`.
+
+```csharp
+public class PublicPrivateExample : MonoBehaviour {
+
+	public float g_x; 
+	public float g_y;
+	private float g_z; 
+
+	// Use this for initialization
+	void Start () {
+		g_x = 0.0f;
+		g_y = 1.0f;
+		g_z = 0.0f;
+	}
+
+	// Update is called once per frame
+	void Update () {				
+		transform.position = new Vector3 (g_x,g_y,g_z);
+	}
+}
+```
+
+#### Using the inspector with scripts
+
+If you need to have objects communicate or do stuff together you can use the public variable to reference objects. This *might* be cleaner than using `GameObject.Find ("object name")` all over the place.
+
++ Create two Cubes in the hierarchy, name them "Cube_A" and "Cube_B".
++ Add new C# script "ObjectController", add this:
+```csharp
+public class ObjectController : MonoBehaviour {
+
+	GameObject cubeA; // The found object
+	public GameObject cubeB; // Editor configured object
+
+	void Start () {
+		cubeA = GameObject.Find ("Cube_A");
+	}
+
+	void Update () {
+		cubeA.transform.Rotate(0, 1, 0);
+		cubeB.transform.Rotate(0, -1, 0);
+	}
+}
+```
+
 ## Interaction
+
+A simple way to get stuff to work from human or system action is using `UnityEvents`. The allow message to be sent around your scene and game without lots of direct connections. Complex at first, but a good way to do some things. We won't cover how to use these in code yet, just connecting them in the inspector.
+
++ In hierarchy, add new object `UI` > `Event System`
++ Go to the camera on our first person controller, `Add Component` > `PhysicsRaycaster`
++ Create something we can click on in the scene, cubes?
++ On each one `Add Component` > `EventTrigger`
++ Press `Add New Event Type`> `OnPointerClick` (This means mouse click)
++ Add new entry to this list
++ In the Object selector, drag the cube into it
++ In the function pull down menu, select `GameObject` > `SetActive (bool)`
+
+This pretty boring example shows you how to deactivate a clicked object. So lets add a more likely example:
+
++ Import the Kino packages (Datamosh, Isoline)
++ Go to Main Camera on player controller Add Component > IsoScroller
++ Add new C# script "ViewSwitch"
+```csharp
+using UnityEngine;
+using Kino;
+
+public class ViewSwitch : MonoBehaviour {
+
+    public Isoline isoline;
+    bool state = false;
+
+    public void SwitchCameraEffect(){
+        state = !state;
+        isoline.enabled = state;
+    }
+
+}
+```
++ Add the "ViewSwitch" component somewhere in the screen, add the camera to the isoline public property.
++ Now when you click the cube it is a gate way between the island and a contour data landscape effect thing!
+
+This is still just turing stuff on and off though...
+
 ## Extras
+### Video work
+#### Movie
+
++ Create 3D GameObject called `Plane`, rename this to something sensible
++ Rotate it to face towards you.
++ Drag a video file onto it.
++ Press play!
+
+#### Webcam
+
++ Create a `Plane` like before, give it the following (widescreen) transform in the inspector:
+    + rotation: (x: 90, y: 90, z: -90)
+    + scale: (x: 1.92, y: 1, z: 1.08)
++ Create new C# script named "WebCam"
+```csharp
+public class WebCam : MonoBehaviour {
+
+    public int Width = 1920;
+    public int Height = 1080;
+    public int FPS = 30;
+
+    void Start()
+    {
+        WebCamDevice[] devices = WebCamTexture.devices;
+        // display all cameras
+        for (var i = 0; i < devices.Length; i++)
+        {
+            Debug.Log(devices[i].name);
+        }
+
+        WebCamTexture webcamTexture = new WebCamTexture(devices[0].name, Width, Height, FPS);
+        GetComponent<Renderer>().material.mainTexture = webcamTexture;
+        webcamTexture.Play();
+    }
+}
+```
+
+![scripting](./TutorialResources/WebCam.png)
+
 ### Reflection probes
-### Animations
+
+Let's hack some modernist art:
+
++ Create a `Reflection Probe`
++ Set resolution to 1024
++ Create new material "Metalic"
++ Set `Metalic` to 1
++ Set `Smoothness` to 1
++ Add four cubes, apply Metalic material to each of them
++ Space them like [Robert Morris "Untitled"](http://www.tate.org.uk/art/artworks/morris-untitled-t01532)
+
 ### Post processing
+
++ Import the Post Processing stack from Asset Store
++ Add Component `Post-Processing Behaviour` to your camera
++ Create new `Post-Processing Profile`
++ Add the profile to the behaviour on tha camera
++ Edit the profile like photoshop
+
+Warning, this can really effect framerate on mobile and vr! Use carefully, and always check its effect on rendering cost.
